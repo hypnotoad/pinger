@@ -7,3 +7,6 @@ release/$(hslfile): config.xml src/*.py
 
 clean:
 	rm -f release/$(hslfile)
+
+zip: release/$(hslfile)
+	zip $^.zip $^
