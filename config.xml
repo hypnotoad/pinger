@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <modules>
+        <module category="Netzwerk" context="rd_pinger" id="14046" name="pinger" version="0.4">
+            <inputs>
+                <input type="string" const_name="hostname"
+		       init_value="">host name</input>
+                <input type="number" const_name="interval"
+		       init_value="30">time interval</input>
+            </inputs>
+            <outputs>
+                <output type="number" const_name="host_up" init_value="0">up</output>
+                <output type="number" const_name="host_delay" init_value="0">delay</output>
+                <output type="number" const_name="pinging" init_value="0">pinging</output>
+            </outputs>
+            <!--<imports>
+                <import></import>
+            </imports>-->
+        </module>
+    </modules>
+    <!--<logging type="Syslog" ip="192.168.178.49" port="514" />-->
+</config>
