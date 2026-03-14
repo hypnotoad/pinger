@@ -97,11 +97,11 @@ class LogicModule:
                             val = float(match.group(1))
                             self.set_output("host_delay", val)
                             self.set_output("host_up", 1)
-                            self.debug.log("%s up with %.1f ms" % (self.host, val))
+                            #self.debug.log("%s up with %.1f ms" % (self.host, val))
                         else:
                             self.set_output("host_delay", 1000*self.interval)
                             self.set_output("host_up", 0)
-                            self.debug.log("%s down" % self.host)
+                            #self.debug.log("%s down" % self.host)
  
                     else:
                         # check if the process finished. If yes, break. Otherwise, continue.
