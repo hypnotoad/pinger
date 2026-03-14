@@ -23,7 +23,7 @@ import json
 
 class DebugSection:
     def log(self, text):
-        print(text)
+        print("# {}".format(text))
     
 class Hsl3Framework:
     def __init__(self, configfile):
@@ -52,7 +52,7 @@ class Hsl3Framework:
             assert type(value) == bytes
         else:
             assert type(value) == float or type(value) == int
-        print("Setting output {} to {}".format(key, value))
+        print("> Setting output {} to {}".format(key, value))
 
 class Hsl3Slot:
     def __init__(self, value):
