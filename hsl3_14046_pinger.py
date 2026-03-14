@@ -1,80 +1,59 @@
-# coding: iso-8859-15
-
-global time
+import os
 import time
-global threading
 import threading
-global subprocess
 import subprocess
-global re
 import re
 
 
-##!!!!##################################################################################################
-#### Own written code can be placed above this commentblock . Do not change or delete commentblock! ####
-########################################################################################################
-##** Code created by generator - DO NOT CHANGE! **##
+class LogicModule:
+    def __init__(self, hsl3):
+        self.fw = hsl3
+        self.debug = self.fw.create_debug_section()
 
-class Pinger14046(hsl20_4.BaseModule):
-
-    def __init__(self, homeserver_context):
-        hsl20_4.BaseModule.__init__(self, homeserver_context, "rd_pinger")
-        self.FRAMEWORK = self._get_framework()
-        self.LOGGER = self._get_logger(hsl20_4.LOGGING_NONE,())
-        self.PIN_I_HOSTNAME=1
-        self.PIN_I_INTERVAL=2
-        self.PIN_O_HOST_UP=1
-        self.PIN_O_HOST_DELAY=2
-        self.PIN_O_PINGING=3
-
-########################################################################################################
-#### Own written code can be placed after this commentblock . Do not change or delete commentblock! ####
-###################################################################################################!!!##
-
-    def on_init(self):
-        # protecting host, interval, proc for write access
+    def on_init(self, inputs, store):
+        # protecting member variables for concurrent access
         self.lock = threading.Lock()
-
-        #self.LOGGER.set_level(10)
-        self.LOGGER.info("on_init")
-
         self.proc = None
-        self.start_proc()
         
+        self.start_proc(inputs)
 
-    def on_input_value(self, index, value):
-        self.LOGGER.info("on_input_value %d %s" % (index, value))
+    def on_calc(self, inputs):
         self.stop_proc()
-        self.start_proc()
+        self.start_proc(inputs)
 
-    def start_proc(self):
-        self.LOGGER.info("starting thread")
+    def on_timer(self, timer):
+        pass
+        
+    def start_proc(self, inputs):
+        self.debug.log("starting thread")
+        self.host = inputs["hostname"].value.decode('ascii')
+        self.interval = inputs["interval"].value        
         
         self.exitThread = False
-        self.host = self._get_input_value(self.PIN_I_HOSTNAME)
-        self.interval = self._get_input_value(self.PIN_I_INTERVAL)
         self.ping_thread = threading.Thread(target=self.ping_thread_func)
         self.ping_thread.start()
         
-        self.LOGGER.info("thread started")
+        self.debug.log("thread started")
 
     def stop_proc(self):
-        self.LOGGER.info("stopping thread")
+        self.debug.log("stopping thread")
  
         # kill the proc which will terminate the thread
         with self.lock:
-            self.LOGGER.info("killing")
             self.exitThread = True
             if self.proc:
                 self.proc.kill()
         self.ping_thread.join()
         self.ping_thread = None
         
-        self.LOGGER.info("thread stopped")
-            
+        self.debug.log("thread stopped")
+
+    def set_output(self, key, value):
+        self.fw.run_in_context(self.fw.set_output, (key, value))
+
     def ping_thread_func(self):
 
-        pattern = re.compile("time=([\d\.]+) ms")
+        pattern = re.compile(r"time=([\d\.]+) ms")
         first = True
 
         while True:
@@ -87,7 +66,7 @@ class Pinger14046(hsl20_4.BaseModule):
                     first = False
                 else:
                     duration = min(60, 10*self.interval)
-                    self.LOGGER.info("Restarting ping process after %ds" % duration)
+                    self.debug.log("Restarting ping process after %ds" % duration)
                     time.sleep(duration)
 
                 with self.lock:
@@ -98,9 +77,10 @@ class Pinger14046(hsl20_4.BaseModule):
                     DEVNULL = open(os.devnull, 'w')
                     self.proc = subprocess.Popen(['/usr/bin/ping', '-i', "%d" % self.interval, self.host],
                                                  stdout=subprocess.PIPE, stderr=DEVNULL)
-                    self.proc.stdout.readline()
+                    stdout = self.proc.stdout
+                stdout.readline()
                     
-                self._set_output_value(self.PIN_O_PINGING, 1)
+                self.set_output("pinging", 1)
 
                 while True:
                     line = None
@@ -108,37 +88,37 @@ class Pinger14046(hsl20_4.BaseModule):
                         if self.exitThread:
                             break
 
-                    line = self.proc.stdout.readline()
+                    line = stdout.readline()
                         
                     if line:
-                        match = pattern.search(line)
+                        match = pattern.search(line.decode('ascii'))
 
                         if match:
                             val = float(match.group(1))
-                            self._set_output_value(self.PIN_O_HOST_DELAY, val)
-                            self._set_output_value(self.PIN_O_HOST_UP, 1)
-                            self.LOGGER.info("%s up with %.1f ms" % (self.host, val))
+                            self.set_output("host_delay", val)
+                            self.set_output("host_up", 1)
+                            self.debug.log("%s up with %.1f ms" % (self.host, val))
                         else:
-                            self._set_output_value(self.PIN_O_HOST_DELAY, 1000*self.interval)
-                            self._set_output_value(self.PIN_O_HOST_UP, 0)
-                            self.LOGGER.info("%s down" % self.host)
+                            self.set_output("host_delay", 1000*self.interval)
+                            self.set_output("host_up", 0)
+                            self.debug.log("%s down" % self.host)
  
                     else:
-                        self.LOGGER.info("Could not read result.")
-
                         # check if the process finished. If yes, break. Otherwise, continue.
                         if self.proc.poll() != None:
                             break
 
+                        self.debug.log("Could not parse result '{}'".format(line))
+
             except Exception as e:
-                self.LOGGER.info("Exception. %s" % str(e))
+                self.debug.log("Exception: %s" % str(e))
                 pass
 
             # clean up and prepare for a restart or exiting the thread
             
-            self._set_output_value(self.PIN_O_HOST_DELAY, 1000*self.interval)
-            self._set_output_value(self.PIN_O_HOST_UP, 0)
-            self._set_output_value(self.PIN_O_PINGING, 0)
+            self.set_output("host_delay", 1000*self.interval)
+            self.set_output("host_up", 0)
+            self.set_output("pinging", 0)
 
             if self.proc.poll() == None:
                 self.proc.kill()
@@ -149,5 +129,5 @@ class Pinger14046(hsl20_4.BaseModule):
                 if self.exitThread:
                     break
                 
-        self.LOGGER.info("exiting thread")
+        self.debug.log("exiting thread")
             
