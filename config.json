@@ -1,0 +1,50 @@
+{
+  "module": {
+    "category": "Services",
+    "context": "rd_pinger",
+    "id": "14046",
+    "name": "Pinger",
+    "version": "0.5.0",
+    "inputs": [
+      {
+        "label": "host name",
+        "identifier": "hostname",
+        "init_value": "",
+        "type": "string"
+      },
+      {
+        "label": "ping interval",
+        "identifier": "interval",
+        "init_value": "30",
+        "type": "number"
+      }
+    ],
+    "outputs": [
+      {
+        "label": "up",
+        "identifier": "host_up",
+        "init_value": "0",
+        "type": "number"
+      },
+      {
+        "label": "delay [ms]",
+        "identifier": "host_delay",
+        "init_value": "0",
+        "type": "number"
+      },
+      {
+        "label": "pinging",
+        "identifier": "pinging",
+        "init_value": "0",
+        "type": "number"
+      }
+    ],
+    "stores": [],
+    "timers": [],
+    "scripts": [
+      {
+	  "folder": "."
+      }
+    ]
+  }
+}
