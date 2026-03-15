@@ -10,7 +10,8 @@ module = LogicModule(fw)
 
 
 test_input = {"hostname": b'1.1.1.1',
-              "interval": 2
+              "interval": 2,
+              "enabled": 1
               }
 inputs=Hsl3Slots(test_input)
 store=Hsl3Slots({})
@@ -23,6 +24,24 @@ if True:
     inputs=Hsl3Slots(test_input)
     inputs["interval"].value = 1
     inputs["interval"].changed = True
+    module.on_calc(inputs)
+
+    time.sleep(5)
+
+if True:
+    print("%%% Testing disabling")
+    inputs=Hsl3Slots(test_input)
+    inputs["enabled"].value = 0
+    inputs["enabled"].changed = True
+    module.on_calc(inputs)
+
+    time.sleep(5)
+
+if True:
+    print("%%% Testing changing the host name")
+    inputs=Hsl3Slots(test_input)
+    inputs["hostname"].value = b"8.8.8.8"
+    inputs["hostname"].changed = True
     module.on_calc(inputs)
 
     time.sleep(5)

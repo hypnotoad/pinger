@@ -17,6 +17,12 @@
         "identifier": "interval",
         "init_value": "30",
         "type": "number"
+      },
+      {
+        "label": "enabled",
+        "identifier": "enabled",
+        "init_value": "1",
+        "type": "number"
       }
     ],
     "outputs": [

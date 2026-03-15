@@ -25,6 +25,10 @@ class LogicModule:
         pass
         
     def start_proc(self, inputs):
+        if not inputs["enabled"].value:
+            self.debug.log("disabled, not starting ping thread")
+            return
+        
         self.debug.log("starting thread")
         self.host = inputs["hostname"].value.decode('ascii')
         self.interval = inputs["interval"].value        
@@ -36,17 +40,19 @@ class LogicModule:
         self.debug.log("thread started")
 
     def stop_proc(self):
-        self.debug.log("stopping thread")
  
         # kill the proc which will terminate the thread
         with self.lock:
             self.exitThread = True
             if self.proc:
+                self.debug.log("killing ping")
                 self.proc.kill()
-        self.ping_thread.join()
-        self.ping_thread = None
-        
-        self.debug.log("thread stopped")
+                
+        if self.ping_thread:
+            self.debug.log("stopping thread")
+            self.ping_thread.join()
+            self.ping_thread = None
+            self.debug.log("thread stopped")
 
     def set_output(self, key, value):
         self.fw.run_in_context(self.fw.set_output, (key, value))
