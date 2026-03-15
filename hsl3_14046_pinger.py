@@ -82,7 +82,8 @@ class LogicModule:
                 with self.lock:
                     DEVNULL = open(os.devnull, 'w')
                     self.proc = subprocess.Popen(['/usr/bin/ping', '-i', "%d" % self.interval, self.host],
-                                                 stdout=subprocess.PIPE, stderr=DEVNULL)
+                                                 stdout=subprocess.PIPE, stderr=DEVNULL,
+                                                 text=True, bufsize=1)
                     stdout = self.proc.stdout
                 stdout.readline()
                     
@@ -97,7 +98,7 @@ class LogicModule:
                     line = stdout.readline()
                         
                     if line:
-                        match = pattern.search(line.decode('ascii'))
+                        match = pattern.search(line)
 
                         if match:
                             val = float(match.group(1))
