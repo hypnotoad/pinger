@@ -115,8 +115,6 @@ class LogicModule:
                         if self.proc.poll() != None:
                             break
 
-                        self.debug.log("Could not parse result '{}'".format(line))
-
             except Exception as e:
                 self.debug.log("Exception: %s" % str(e))
                 pass
