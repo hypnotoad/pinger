@@ -87,8 +87,6 @@ class LogicModule:
                     stdout = self.proc.stdout
                 stdout.readline()
                     
-                self.set_output("pinging", 1)
-
                 while True:
                     line = None
                     with self.lock:
@@ -98,6 +96,7 @@ class LogicModule:
                     line = stdout.readline()
                         
                     if line:
+                        self.set_output("pinging", 1)
                         match = pattern.search(line)
 
                         if match:
