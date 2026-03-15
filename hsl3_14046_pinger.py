@@ -125,7 +125,9 @@ class LogicModule:
             self.set_output("pinging", 0)
 
             if self.proc.poll() == None:
+                self.debug.log("killing ping process")
                 self.proc.kill()
+            self.debug.log("ping process exited")
 
             with self.lock:
                 self.proc = None
