@@ -4,7 +4,7 @@
     "context": "rd_pinger",
     "id": "14046",
     "name": "Pinger",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "inputs": [
       {
         "label": "host name",

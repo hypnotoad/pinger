@@ -9,6 +9,31 @@ fw = Hsl3Framework("config.json")
 module = LogicModule(fw)
 
 
+print("%%% Testing disabled start")
+
+test_input = {"hostname": b'1.1.1.1',
+              "interval": 2,
+              "enabled": 0
+              }
+inputs=Hsl3Slots(test_input)
+store=Hsl3Slots({})
+module.on_init(inputs, store)
+
+time.sleep(5)
+
+
+if True:
+    print("%%% Testing enabling")
+    inputs=Hsl3Slots(test_input)
+    inputs["enabled"].value = 1
+    inputs["enabled"].changed = True
+    module.on_calc(inputs)
+
+    time.sleep(5)
+
+
+print("%%% Testing enabled start")
+
 test_input = {"hostname": b'1.1.1.1',
               "interval": 2,
               "enabled": 1

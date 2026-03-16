@@ -14,6 +14,7 @@ class LogicModule:
         # protecting member variables for concurrent access
         self.lock = threading.Lock()
         self.proc = None
+        self.ping_thread = None
         
         self.start_proc(inputs)
 
